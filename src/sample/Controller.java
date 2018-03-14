@@ -15,15 +15,14 @@ public class Controller implements Initializable{
     private JFXButton button;
 
 
-
-    @Override
+    @FXML
     public void initialize(URL location, ResourceBundle resources) {
         TranslateTransition transition = new TranslateTransition();
         transition.setDuration(Duration.seconds(4.0));
         transition.setNode(button);
 
-        transition.setToX(-2000.0);
-        transition.setToY(-2000.0);
+        transition.setToX(100.0);
+        transition.setToY(100.0);
         transition.setAutoReverse(true);
         transition.setCycleCount(2);
 
