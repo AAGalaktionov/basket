@@ -21,10 +21,10 @@ public class Controller implements Initializable{
         transition.setDuration(Duration.seconds(4.0));
         transition.setNode(button);
 
-        transition.setToX(100.0);
-        transition.setToY(100.0);
+        transition.setToX(700.0);
+        transition.setToY(-400.0);
         transition.setAutoReverse(true);
-        transition.setCycleCount(2);
+        transition.setCycleCount(5);
 
          transition.play();
 
