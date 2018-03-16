@@ -86,7 +86,7 @@ public class Controller implements Initializable {
                     if (iterator.hasNext()) {
                         Map.Entry<Double, Double> entry = iterator.next();
                         //умножение и сложение это смещение для координат отрисовки
-                        button.relocate(entry.getKey() * 100, -entry.getValue() * 100 + 400);
+                        button.relocate(entry.getKey() * 100 + 30, -entry.getValue() * 100 + 600);
                     } else {
                         alert.show();
                         fiveSecondsWonder.stop();
