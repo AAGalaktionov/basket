@@ -80,7 +80,6 @@ public class Controller implements Initializable {
         //При пустом решение и отрисовывать нечего
         if (trace.size() <= 1) return;
         alert.setContentText("Конец!!!");
-        System.out.println(trace.size());
         Iterator<Map.Entry<Double, Double>> iterator = trace.entrySet().iterator();
         fiveSecondsWonder = new Timeline(new KeyFrame(Duration.millis(50),
                 event -> {
