@@ -33,74 +33,67 @@ public class Controller implements Initializable {
 
 
     private Timeline fiveSecondsWonder;
+    private Alert alert = null;
+    private double v0;
+    private double angle;
 
 
     @FXML
     public void initialize(URL location, ResourceBundle resources) {
+        alert = new Alert(Alert.AlertType.INFORMATION);
 
         buttonNumerical.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-            Map<Double, Double> trace = Calculate.calculateTraectory(8.0, 45.0);
-            Iterator<Double> xIter = trace.keySet().iterator();
-            Iterator<Double> yIter = trace.values().iterator();
-
-            fiveSecondsWonder = new Timeline(new KeyFrame(Duration.millis(50),
-                    event -> {
-                        if (xIter.hasNext()) {
-                            //умножение это смещение для координат отрисовки
-                            button.relocate(xIter.next() * 100, -yIter.next() * 100 + 400);
-                        } else {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setContentText("УСЁ!!!");
-                            alert.show();
-                            fiveSecondsWonder.stop();
-                        }
-                    }));
-            fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
-            fiveSecondsWonder.play();
+            getParams();
+            show(Calculate.calculateTraectory(v0, angle));
         });
 
         buttonAnalytically.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-            Map<Double, Double> trace = Calculate.calculateAnaliticalTraectory(8.0, 45.0);
-            Iterator<Double> xIter = trace.keySet().iterator();
-            Iterator<Double> yIter = trace.values().iterator();
-
-            fiveSecondsWonder = new Timeline(new KeyFrame(Duration.millis(50),
-                    event -> {
-                        if (xIter.hasNext()) {
-                            //умножение это смещение для координат отрисовки
-                            button.relocate(xIter.next() * 100, -yIter.next() * 100 + 400);
-                        } else {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setContentText("УСЁ!!!");
-                            alert.show();
-                            fiveSecondsWonder.stop();
-                        }
-                    }));
-            fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
-            fiveSecondsWonder.play();
+            getParams();
+            show(Calculate.calculateAnaliticalTraectory(v0, angle));
         });
 
         buttonAirResistance.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-            Map<Double, Double> trace = Calculate.calculateAirResTraectory(8.0, 45.0);
-            Iterator<Double> xIter = trace.keySet().iterator();
-            Iterator<Double> yIter = trace.values().iterator();
-
-            fiveSecondsWonder = new Timeline(new KeyFrame(Duration.millis(50),
-                    event -> {
-                        if (xIter.hasNext()) {
-                            //умножение это смещение для координат отрисовки
-                            button.relocate(xIter.next() * 100, -yIter.next() * 100 + 400);
-                        } else {
-                            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                            alert.setContentText("УСЁ!!!");
-                            alert.show();
-                            fiveSecondsWonder.stop();
-                        }
-                    }));
-            fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
-            fiveSecondsWonder.play();
+            getParams();
+            show(Calculate.calculateAirResTraectory(v0, angle));
         });
 
+        textField1.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> textField1.setText(""));
+        textField2.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> textField2.setText(""));
 
+    }
+
+    private void getParams() {
+        try {
+            v0 = Double.parseDouble(textField1.getText());
+            angle = Double.parseDouble(textField2.getText());
+            if (v0 <= 0 || (angle < 0 && angle > 360))
+                throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            v0 = 0;
+            angle = 0;
+            alert.setContentText("Некорректные входные параметры!!!");
+            alert.show();
+        }
+    }
+
+    private void show(Map<Double, Double> trace) {
+        //При пустом решение и отрисовывать нечего
+        if (trace.size() <= 1) return;
+        alert.setContentText("Конец!!!");
+        System.out.println(trace.size());
+        Iterator<Map.Entry<Double, Double>> iterator = trace.entrySet().iterator();
+        fiveSecondsWonder = new Timeline(new KeyFrame(Duration.millis(50),
+                event -> {
+                    if (iterator.hasNext()) {
+                        Map.Entry<Double, Double> entry = iterator.next();
+                        //умножение и сложение это смещение для координат отрисовки
+                        button.relocate(entry.getKey() * 100, -entry.getValue() * 100 + 400);
+                    } else {
+                        alert.show();
+                        fiveSecondsWonder.stop();
+                    }
+                }));
+        fiveSecondsWonder.setCycleCount(Timeline.INDEFINITE);
+        fiveSecondsWonder.play();
     }
 }
