@@ -17,8 +17,7 @@ abstract class Calculate {
     static boolean checkFail(double x, double y) {
         double t1 = Math.sqrt(Math.pow(ring1.x - x, 2) + Math.pow(ring1.y - y, 2));
         double t2 = Math.sqrt(Math.pow(ring2.x - x, 2) + Math.pow(ring2.y - y, 2));
-        if (t1 <= rOfBall || t2 <= rOfBall || x > ring2.x) return true;
-        return false;
+        return t1 <= rOfBall || t2 <= rOfBall || x > ring2.x;
     }
 
     static void cheackGoal(double x, double y1, double y2) {
@@ -27,6 +26,7 @@ abstract class Calculate {
     }
 
 
+    static int iterationCount = 10000;
     static double h = 0.05;
 
     static Map<Double, Double> calculateTraectory(Double tmpV0, Double tmpAngle) {
@@ -41,7 +41,7 @@ abstract class Calculate {
         tmpX.add(hieght.x);
         tmpY.add(hieght.y);
         list.put(tmpX.get(0), tmpY.get(0));
-        for (int i = 1; i < 100; i++) {
+        for (int i = 1; i < iterationCount; i++) {
             tmpVx.add(tmpVx.get(i - 1));
             tmpVy.add(tmpVy.get(i - 1) - h * 9.8);
             tmpX.add(tmpX.get(i - 1) + h * tmpVx.get(i));
@@ -50,8 +50,7 @@ abstract class Calculate {
                 if (tmpY.size() > 1)
                     cheackGoal(tmpX.get(i), tmpY.get(i - 1), tmpY.get(i));
                 list.put((double) Math.round(tmpX.get(i) * 1000) / 1000, (double) Math.round(tmpY.get(i) * 1000) / 1000);
-            }
-            else break;
+            } else break;
         }
 
         return list;
@@ -66,8 +65,8 @@ abstract class Calculate {
         antmpY.add(hieght.y);
         list.put(antmpX.get(0), antmpY.get(0));
         double time = 0.0;
-        for (int i = 1; i < 100; i++) {
-            time += 0.05;
+        for (int i = 1; i < iterationCount; i++) {
+            time += h;
             antmpX.add(antmpX.get(0) + tmpV0 * Math.cos(tmpAngle * Math.PI / 180) * time);
             antmpY.add(antmpY.get(0) + tmpV0 * Math.sin(tmpAngle * Math.PI / 180) * time - 9.8 * time * time / 2);
             if (antmpY.get(i) > 0 && !checkFail(antmpX.get(i), antmpX.get(i))) {
@@ -76,8 +75,7 @@ abstract class Calculate {
                     cheackGoal(antmpX.get(i), antmpY.get(i - 1), antmpY.get(i));
                 /*list.put((double) Math.round(antmpX.get(i)*1000)/1000, (double) Math.round(antmpY.get(i)*1000)/1000);*/
                 list.put(antmpX.get(i), antmpY.get(i));
-            }
-            else break;
+            } else break;
         }
 
         return list;
@@ -96,9 +94,9 @@ abstract class Calculate {
         airtmpX.add(hieght.x);
         airtmpY.add(hieght.y);
         list.put(airtmpX.get(0), airtmpY.get(0));
-        for (int i = 1; i < 100; i++) {
-            airtmpVx.add(airtmpVx.get(i - 1) - 6 * Math.PI * 0.0182 * 0.122 * airtmpVx.get(i - 1));
-            airtmpVy.add(airtmpVy.get(i - 1) - h * 9.8 - 6 * Math.PI * 0.0182 * 0.122 * airtmpVy.get(i - 1));
+        for (int i = 1; i < iterationCount; i++) {
+            airtmpVx.add(airtmpVx.get(i - 1) - h * 6 * Math.PI * 0.0182 * 0.122 * airtmpVx.get(i - 1) / 0.5);
+            airtmpVy.add(airtmpVy.get(i - 1) - h * 9.8 - h * 6 * Math.PI * 0.0182 * 0.122 * airtmpVy.get(i - 1) / 0.5);
             airtmpX.add(airtmpX.get(i - 1) + h * airtmpVx.get(i));
             airtmpY.add(airtmpY.get(i - 1) + h * airtmpVy.get(i));
             if (airtmpY.get(i) > 0 && !checkFail(airtmpX.get(i), airtmpY.get(i))) {
@@ -110,5 +108,36 @@ abstract class Calculate {
 
         return list;
     }
+
+    static Map<Double, Double> calculateAnaliticalAirResTraectory(Double tmpV0, Double tmpAngle) {
+        ArrayList<Double> anAtmpX = new ArrayList<>();
+        ArrayList<Double> anAtmpY = new ArrayList<>();
+        Map<Double, Double> list = new TreeMap<>();
+        anAtmpX.add(hieght.x);
+        anAtmpY.add(hieght.y);
+        double m = 0.5;
+        double k = 6 * Math.PI * 0.0182 * 0.122;
+        double c2 = -m * tmpV0 * Math.cos(tmpAngle * Math.PI / 180) / k;
+        double c1 = hieght.x - c2;
+        double c4 = m * (tmpV0 * Math.sin(tmpAngle * Math.PI / 180) + 9.8 * m / k) / -k;
+        double c3 = hieght.y - c4;
+
+
+        list.put(anAtmpX.get(0), anAtmpY.get(0));
+        double time = 0.0;
+        for (int i = 1; i < iterationCount; i++) {
+            time += h;
+            anAtmpX.add(c1 + c2 * Math.exp(-k * time / m));
+            anAtmpY.add(c3 + c4 * Math.exp(-k * time / m) - 9.8 * m * time / k);
+            if (anAtmpY.get(i) > 0 && !checkFail(anAtmpX.get(i), anAtmpY.get(i))) {
+                if (anAtmpY.size() > 1)
+                    cheackGoal(anAtmpX.get(i), anAtmpY.get(i - 1), anAtmpY.get(i));
+                list.put(anAtmpX.get(i), anAtmpY.get(i));
+            } else break;
+        }
+
+        return list;
+    }
+
 
 }

@@ -28,6 +28,8 @@ public class Controller implements Initializable {
     @FXML
     private Button buttonAirResistance;
     @FXML
+    private Button buttonNumericalAir;
+    @FXML
     private TextField textField1;
     @FXML
     private TextField textField2;
@@ -54,6 +56,11 @@ public class Controller implements Initializable {
         });
 
         buttonAirResistance.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+            getParams();
+            show(Calculate.calculateAnaliticalAirResTraectory(v0, angle));
+        });
+
+        buttonNumericalAir.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
             getParams();
             show(Calculate.calculateAirResTraectory(v0, angle));
         });
