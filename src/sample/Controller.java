@@ -6,6 +6,7 @@ import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.util.Duration;
@@ -19,13 +20,13 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
 
     @FXML
-    private JFXButton button;
+    private Button button;
     @FXML
-    private JFXButton buttonAnalytically;
+    private Button buttonAnalytically;
     @FXML
-    private JFXButton buttonNumerical;
+    private Button buttonNumerical;
     @FXML
-    private JFXButton buttonAirResistance;
+    private Button buttonAirResistance;
     @FXML
     private TextField textField1;
     @FXML
@@ -64,6 +65,8 @@ public class Controller implements Initializable {
 
     private void getParams() {
         try {
+            //Обнулить попадание
+            Calculate.isGoal = false;
             v0 = Double.parseDouble(textField1.getText());
             angle = Double.parseDouble(textField2.getText());
             if (v0 <= 0 || (angle < 0 && angle > 360))
@@ -79,15 +82,19 @@ public class Controller implements Initializable {
     private void show(Map<Double, Double> trace) {
         //При пустом решение и отрисовывать нечего
         if (trace.size() <= 1) return;
-        alert.setContentText("Конец!!!");
         Iterator<Map.Entry<Double, Double>> iterator = trace.entrySet().iterator();
         fiveSecondsWonder = new Timeline(new KeyFrame(Duration.millis(50),
                 event -> {
                     if (iterator.hasNext()) {
                         Map.Entry<Double, Double> entry = iterator.next();
                         //умножение и сложение это смещение для координат отрисовки
-                        button.relocate(entry.getKey() * 100 + 30, -entry.getValue() * 100 + 600);
+                        button.relocate(entry.getKey() * 150 + 175, -entry.getValue() * 150 + 735);
                     } else {
+                        if (Calculate.isGoal) {
+                            alert.setContentText("Гол!!!");
+                        } else {
+                            alert.setContentText("Мимо!!!");
+                        }
                         alert.show();
                         fiveSecondsWonder.stop();
                     }
